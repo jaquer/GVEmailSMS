@@ -14,10 +14,14 @@ class Config:
 
         for section in config.sections():
             cfg[section] = dict(config.items(section))
+            
+        # Split username and domain since it's used on incoming mail
+        # regex (EMAIL_REGEX)
+        cfg['email']['username'], cfg['email']['domain'] = cfg['email']['address'].split('@')
 
         # IMAP username is optional
         if (not 'username' in cfg) or (cfg['imap']['username'] == ''):
-            cfg['imap']['username'] = '%s@%s' % (cfg['email']['username'], cfg['email']['domain'])
+            cfg['imap']['username'] = cfg['email']['address']
 
         # Coerce boolean values
         bln = [('main', 'save_passwords'),
