@@ -9,7 +9,7 @@ class Mailer:
         m = cfg['main']
         s = cfg['smtp']
         
-        self._from = '%s@%s' % (e['username'], e['domain'])
+        self._from = e['address']
         self._from_hdr = '%s <%s>' % (e['name'], self._from)
         
         self._to = m['notify']
