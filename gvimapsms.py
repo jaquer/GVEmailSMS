@@ -41,10 +41,11 @@ replies = []
 # SEARCH command to use when looking for emails
 SEARCH_CMD = '(UNSEEN FROM "' + cfg['main']['notify'] + '")'
 
-# Incoming email regular expression
+# Incoming email regular expressions
 e = cfg['email']
-EMAIL_REGEX = re.escape(e['username'] + '+') + r'(\d{10})' + re.escape('@' + e['domain'])
-EMAIL_REGEX = re.compile(EMAIL_REGEX, re.IGNORECASE)
+EMAIL_REGEX   = re.escape(e['username'] + '+') + r'(\d{10})' + re.escape('@' + e['domain'])
+EMAIL_REGEX   = re.compile(EMAIL_REGEX, re.IGNORECASE)
+SUBJECT_REGEX = re.compile(r'(\d{10})')
 
 imap.login(i['username'], i['password'])
 imap.select()
@@ -76,29 +77,35 @@ while True:
             incoming = Parser().parsestr(msg, True)
 
             # Extract phone number to send SMS to
-            to = incoming['To']
-            name, addr = parseaddr(to)
-
-            match = EMAIL_REGEX.search(addr)
-
+            subject = incoming['Subject']
+            
+            match = SUBJECT_REGEX.search(subject)
+            
             if not match:
-                # Invalid email address format
-                subject = 'Invalid Phone Number'
+            
+                # Try one more time, this time searching "To" header.
+                to = incoming['To']
+                name, addr = parseaddr(to)
 
-                print '  ' + subject
-                
-                body = 'The phone number you specified in the email address is invalid.\n\n'
-                body += 'Phone number must be 10 digits (area code + phone number). Please try again.\n'
+                match = EMAIL_REGEX.search(addr)
 
-                mailer.send_email(subject, body)
-                
-                imap.store(num, 'FLAGS', '(\Seen \Deleted)')
-                #imap.expunge()
+                if not match:
+                    # Invalid email address format
+                    subject = 'Invalid Phone Number'
 
-                sys.exit(0)
+                    print '  ' + subject
+                    
+                    body = 'The phone number you specified in the email you sent is invalid.\n\n'
+                    body += 'Phone number must be 10 digits (area code + phone number). Please try again.\n'
+
+                    mailer.send_email(subject, body)
+                    
+                    imap.store(num, 'FLAGS', '(\Seen \Deleted)')
+                    #imap.expunge()
+
+                    sys.exit(0)
                 
-            else:
-                number = match.group(1)
+            number = match.group(1)
 
             for part in incoming.walk():
                 if part.get_content_type() == 'text/plain':
