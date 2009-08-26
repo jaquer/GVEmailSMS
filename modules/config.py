@@ -19,9 +19,10 @@ class Config:
         # regex (EMAIL_REGEX)
         cfg['email']['username'], cfg['email']['domain'] = cfg['email']['address'].split('@')
 
-        # IMAP username is optional
-        if (not 'username' in cfg) or (cfg['imap']['username'] == ''):
-            cfg['imap']['username'] = cfg['email']['address']
+        # IMAP/SMTP usernames are optional
+        for section in 'imap', 'smtp':
+            if (not 'username' in cfg[section]) or (cfg[section]['username'] == ''):
+                cfg[section]['username'] = cfg['email']['address']
 
         # Coerce boolean values
         bln = [('main', 'save_passwords'),
