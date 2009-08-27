@@ -76,7 +76,7 @@ def main():
                     number = group['phoneNumber'].replace('+1', '', 1)
                     subject = 'SMS - %s' % number
 
-                    print 'New SMS message from: %s.' % number
+                    print 'New SMS message from: %s' % number
 
                     # Create email message to send
                     body = ''

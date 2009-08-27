@@ -114,7 +114,7 @@ def main():
 
                 gv.send_sms(number, message)
 
-                print '  Message fowarded to %s.' % number
+                print '  Message fowarded to: %s' % number
                 
             
     # FIXME: This never happens. Need a try/except block somewhere.
