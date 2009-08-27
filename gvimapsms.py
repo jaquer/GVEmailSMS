@@ -56,7 +56,7 @@ def main():
     for num in data[0].split():
         replies.append(num)
         
-    print 'Starting loop'
+    print 'Starting loop.'
 
     while True:
 
@@ -69,7 +69,7 @@ def main():
 
             if not num in replies:
 
-                print 'New email message received'
+                print 'New email message received.'
 
                 tmp, data = imap.fetch(num, '(RFC822)')
                 msg = data[0][1]
@@ -93,7 +93,7 @@ def main():
                         # Invalid email address format
                         subject = 'Invalid Phone Number'
 
-                        print '  ' + subject
+                        print '  %s.' % subject
                         
                         body = 'The phone number you specified in the email you sent is invalid.\n\n'
                         body += 'Phone number must be 10 digits (area code + phone number). Please try again.\n'
@@ -114,7 +114,7 @@ def main():
 
                 gv.send_sms(number, message)
 
-                print '  Message fowarded to %s' % number
+                print '  Message fowarded to %s.' % number
                 
             
     # FIXME: This never happens. Need a try/except block somewhere.

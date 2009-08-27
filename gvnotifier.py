@@ -40,7 +40,7 @@ def main():
             notifications[id] = len(rows)
             
     print 'Current unread message groups: %s' % len(notifications)
-    print 'Starting loop'
+    print 'Starting loop.'
 
     while True:
 
@@ -76,7 +76,7 @@ def main():
                     number = group['phoneNumber'].replace('+1', '', 1)
                     subject = 'SMS - %s' % number
 
-                    print 'New SMS message from: %s' % number
+                    print 'New SMS message from: %s.' % number
 
                     # Create email message to send
                     body = ''
