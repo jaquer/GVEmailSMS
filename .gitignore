@@ -1,3 +1,5 @@
+build
+dist
 passwords.cfg
 settings.cfg
 *.pyc

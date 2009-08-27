@@ -1,16 +1,14 @@
 from distutils.core import setup
-import py2exe, sys
+import os, py2exe, sys
 
 sys.argv.append('py2exe')
 
 setup(
-    options = {'py2exe': {'bundle_files': 1,'compressed': 1, 'optimize': 2}},
-    console = [{'script': "gvnotifier.py"}],
-    zipfile = None
+    options = {'py2exe': {'ascii': 1, 'bundle_files': 1,'compressed': 1, 'optimize': 2}},
+    console = ['gvnotifier.py', 'gvimapsms.py'],
+    data_files = ['settings.cfg.dist', 'passwords.cfg.dist']
     )
 
-setup(
-    options = {'py2exe': {'bundle_files': 1,'compressed': 1, 'optimize': 2}},
-    console = [{'script': "gvimapsms.py"}],
-    zipfile = None
-    )
+os.chdir('dist')
+os.rename('settings.cfg.dist', 'settings.cfg')
+os.rename('passwords.cfg.dist', 'passwords.cfg')
