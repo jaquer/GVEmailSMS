@@ -30,16 +30,11 @@ class Mailer:
         if cfg['DEBUG']:
             self._smtp.set_debuglevel(1)
 
-    def send_email(self, subject, body, number = ''):
+    def send_email(self, subject, body):
 
         msg = MIMEText(body)
         
-        from_hdr = self._from_hdr
-        
-        if number:
-            from_hdr = from_hdr.replace('@', '+' + number + '@', 1)
-        
-        msg['From']    = from_hdr
+        msg['From']    = self._from_hdr
         msg['To']      = self._to_hdr
         msg['Subject'] = subject
         

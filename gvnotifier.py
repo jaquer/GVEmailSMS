@@ -86,7 +86,7 @@ def main():
                         body += '(' + times[index].string.strip() + ')'
                         body += '\n'
 
-                    mailer.send_email(subject, body, number)
+                    mailer.send_email(subject, body)
 
         time.sleep(60)
 
