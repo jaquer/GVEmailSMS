@@ -102,8 +102,6 @@ while True:
                     
                     imap.store(num, 'FLAGS', '(\Seen \Deleted)')
                     #imap.expunge()
-
-                    sys.exit(0)
                 
             number = match.group(1)
 
