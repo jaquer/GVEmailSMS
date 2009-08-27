@@ -24,10 +24,11 @@ g = cfg['google']
 gv = googlevoice.Voice()
 gv.login(g['username'], g['password'])
 
-# Incoming email regular expression
+# Incoming email regular expressions
 e = cfg['email']
-EMAIL_REGEX = re.escape(e['username'] + '+') + r'(\d{10})' + re.escape('@' + e['domain'])
-EMAIL_REGEX = re.compile(EMAIL_REGEX, re.IGNORECASE)
+EMAIL_REGEX   = re.escape(e['username'] + '+') + r'(\d{10})' + re.escape('@' + e['domain'])
+EMAIL_REGEX   = re.compile(EMAIL_REGEX, re.IGNORECASE)
+SUBJECT_REGEX = re.compile(r'(\d{10})')
 
 incoming = Parser().parse(sys.stdin, True)
 
@@ -50,27 +51,34 @@ if addr.lower() != cfg['main']['notify'].lower():
     sys.exit(0)
 
 # Extract phone number to send SMS to
-to = incoming['To']
-name, addr = parseaddr(to)
+subject = incoming['Subject']
 
-match = EMAIL_REGEX.search(addr)
+match = SUBJECT_REGEX.search(subject)
 
 if not match:
-    # Invalid email address format
-    from modules import smtp
-    
-    mailer = smtp.Mailer(cfg)
 
-    subject = 'Invalid Phone Number'
-    
-    body = 'The phone number you specified in the email address is invalid.\n\n'
-    body += 'Phone number must be 10 digits (area code + phone number). Please try again.\n'
+    # Try one more time, this time searching "To" header.
 
-    mailer.send_email(subject, body)
-    sys.exit(0)
+    to = incoming['To']
+    name, addr = parseaddr(to)
 
-else:
-    number = match.group(1)
+    match = EMAIL_REGEX.search(addr)
+
+    if not match:
+        # Invalid email address format
+        from modules import smtp
+        
+        mailer = smtp.Mailer(cfg)
+
+        subject = 'Invalid Phone Number'
+        
+        body = 'The phone number you specified in the email address is invalid.\n\n'
+        body += 'Phone number must be 10 digits (area code + phone number). Please try again.\n'
+
+        mailer.send_email(subject, body)
+        sys.exit(0)
+
+number = match.group(1)
 
 for part in incoming.walk():
     if part.get_content_type() == 'text/plain':
