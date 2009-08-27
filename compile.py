@@ -10,5 +10,7 @@ setup(
     )
 
 os.chdir('dist')
-os.rename('settings.cfg.dist', 'settings.cfg')
-os.rename('passwords.cfg.dist', 'passwords.cfg')
+for config in 'settings.cfg', 'passwords.cfg':
+    if os.path.exists(config):
+        os.remove(config)
+    os.rename(config + '.dist', config)
