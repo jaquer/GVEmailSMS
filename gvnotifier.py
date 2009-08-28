@@ -10,7 +10,7 @@ PWD_FILE = 'passwords.cfg'
 import sys, time
 
 import googlevoice
-from BeautifulSoup import BeautifulSoup
+from lxml import etree
 
 from modules import config, smtp
 
@@ -29,14 +29,23 @@ def main():
 
     # Variable to hold notifications sent
     notifications = {}
+    
+    # lxml parsing objects
+    parser = etree.HTMLParser()
+    xp_group_div  = etree.XPath('//div[@id=$id]')
+    xp_group_rows = etree.XPath('.//div[@class="gc-message-sms-row"]')
+    xp_msg_from   = etree.XPath('.//span[@class="gc-message-sms-from"]')
+    xp_msg_text   = etree.XPath('.//span[@class="gc-message-sms-text"]')
+    xp_msg_time   = etree.XPath('.//span[@class="gc-message-sms-time"]')
 
     # Mark all current message group ids as notified
-    parser = BeautifulSoup(gv.inbox_html())
+    tree = etree.fromstring(gv.inbox_html(), parser)
 
     for id, group in gv.inbox()['messages'].iteritems():
 
         if group['isRead'] == False and 'sms' in group['labels']:
-            rows = parser.find(id = id).findAll(attrs = {'class': 'gc-message-sms-row'})
+            group_div = xp_group_div(tree, id = id)[0]
+            rows = xp_group_rows(group_div)
             notifications[id] = len(rows)
             
     print 'Current unread message groups: %s' % len(notifications)
@@ -49,15 +58,15 @@ def main():
             time.sleep(60)
             continue
 
-        parser = BeautifulSoup(gv.inbox_html())
+        tree = etree.fromstring(gv.inbox_html(), parser)
 
         for id, group in gv.inbox()['messages'].iteritems():
 
             if group['isRead'] == False and 'sms' in group['labels']:
 
-                group_div = parser.find(id = id)
+                group_div = group_div = xp_group_div(tree, id = id)[0]
 
-                rows = group_div.findAll(attrs = {'class': 'gc-message-sms-row'})
+                rows = xp_group_rows(group_div)
                 rows_count = len(rows)
 
                 if not id in notifications:
@@ -69,9 +78,9 @@ def main():
                     # Save count for next loop
                     notifications[id] = rows_count
 
-                    senders  = group_div.findAll(attrs = {'class': 'gc-message-sms-from'})
-                    messages = group_div.findAll(attrs = {'class': 'gc-message-sms-text'})
-                    times    = group_div.findAll(attrs = {'class': 'gc-message-sms-time'})
+                    senders  = xp_msg_from(group_div)
+                    messages = xp_msg_text(group_div)
+                    times    = xp_msg_time(group_div)
 
                     number = group['phoneNumber'].replace('+1', '', 1)
                     subject = 'SMS - %s' % number
@@ -81,9 +90,9 @@ def main():
                     # Create email message to send
                     body = ''
                     for index in reversed(range(rows_count)):
-                        body += senders[index].string.strip() + ' '
-                        body += messages[index].string.strip() + ' '
-                        body += '(' + times[index].string.strip() + ')'
+                        body += senders[index].text.strip() + ' '
+                        body += messages[index].text.strip() + ' '
+                        body += '(' + times[index].text.strip() + ')'
                         body += '\n'
 
                     mailer.send_email(subject, body)
