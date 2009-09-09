@@ -101,7 +101,7 @@ def main():
 
 if __name__ == '__main__':
 
-    from httplib import IncompleteRead
+    from httplib import IncompleteRead, BadStatusLine
 
     while True:
         try:
@@ -111,7 +111,7 @@ if __name__ == '__main__':
             print 'Process cancelled. Exiting.'
             time.sleep(2)
             sys.exit(0)
-        except IncompleteRead:
+        except (IncompleteRead, BadStatusLine):
             print 'Timeout while reading data from Google Voice. Restarting.'
             time.sleep(2)
         except:
