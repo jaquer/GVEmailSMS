@@ -83,7 +83,8 @@ def main():
                     times    = xp_msg_time(group_div)
 
                     number = group['phoneNumber'].replace('+1', '', 1)
-                    subject = 'SMS - %s' % number
+                    sender = senders[rows_count - 1].text.strip()[:-1]
+                    subject = '%s - %s' % (sender, number)
 
                     print 'New SMS message from: %s' % number
 
